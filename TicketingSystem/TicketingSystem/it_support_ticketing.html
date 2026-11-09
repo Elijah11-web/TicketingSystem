@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Support Ticketing System</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f7f7f5;
+    --bg-tertiary: #f0efeb;
+    --bg-info: #e6f1fb;
+    --bg-danger: #fcebeb;
+    --bg-success: #eaf3de;
+    --bg-warning: #faeeda;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #888780;
+    --text-info: #0c447c;
+    --text-danger: #791f1f;
+    --text-success: #27500a;
+    --text-warning: #633806;
+    --border-t: rgba(0,0,0,0.10);
+    --border-s: rgba(0,0,0,0.18);
+    --border-p: rgba(0,0,0,0.28);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --nav-w: 52px;
+    --panel-w: 320px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1c1c1a;
+      --bg-secondary: #242422;
+      --bg-tertiary: #2c2c2a;
+      --bg-info: #042c53;
+      --bg-danger: #501313;
+      --bg-success: #173404;
+      --bg-warning: #412402;
+      --text-primary: #f0efe9;
+      --text-secondary: #a8a79f;
+      --text-tertiary: #6e6d67;
+      --text-info: #85b7eb;
+      --text-danger: #f09595;
+      --text-success: #97c459;
+      --text-warning: #ef9f27;
+      --border-t: rgba(255,255,255,0.08);
+      --border-s: rgba(255,255,255,0.15);
+      --border-p: rgba(255,255,255,0.25);
+    }
+  }
+
+  html, body { height: 100%; font-family: var(--font); background: var(--bg-tertiary); color: var(--text-primary); }
+
+  /* ── Layout ── */
+  .app { display: flex; height: 100vh; background: var(--bg-primary); overflow: hidden; }
+
+  /* ── Icon nav ── */
+  .nav { width: var(--nav-w); background: var(--bg-secondary); border-right: 0.5px solid var(--border-t); display: flex; flex-direction: column; align-items: center; padding: 12px 0; gap: 2px; flex-shrink: 0; }
+  .nav-logo { width: 32px; height: 32px; border-radius: 8px; background: var(--text-primary); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .nav-logo i { font-size: 16px; color: var(--bg-primary); }
+  .nav-btn { width: 36px; height: 36px; border-radius: 8px; border: none; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); position: relative; transition: background 0.12s, color 0.12s; }
+  .nav-btn:hover { background: var(--bg-primary); color: var(--text-primary); }
+  .nav-btn.active { background: var(--bg-primary); color: var(--text-primary); }
+  .nav-btn i { font-size: 18px; }
+  .nav-pip { position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; border-radius: 50%; background: #E24B4A; }
+  .nav-spacer { flex: 1; }
+
+  /* ── Sidebar ── */
+  .sidebar { width: 180px; border-right: 0.5px solid var(--border-t); display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+  .sb-head { padding: 16px 14px 10px; border-bottom: 0.5px solid var(--border-t); }
+  .sb-head p { font-size: 11px; font-weight: 500; color: var(--text-tertiary); letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 10px; }
+  .sb-search { position: relative; }
+  .sb-search i { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-tertiary); pointer-events: none; }
+  .sb-search input { padding-left: 28px; width: 100%; font-size: 12px; height: 30px; border: 0.5px solid var(--border-t); border-radius: var(--radius-md); background: var(--bg-primary); color: var(--text-primary); font-family: var(--font); outline: none; }
+  .sb-search input:focus { border-color: var(--border-p); box-shadow: 0 0 0 2px rgba(55,138,221,0.15); }
+  .sb-scroll { overflow-y: auto; flex: 1; }
+  .sb-section { padding: 10px 8px 4px; }
+  .sb-label { font-size: 10px; font-weight: 500; color: var(--text-tertiary); letter-spacing: 0.08em; text-transform: uppercase; padding: 0 6px; margin-bottom: 4px; }
+  .sb-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--text-secondary); border: none; background: none; width: 100%; text-align: left; transition: background 0.1s, color 0.1s; font-family: var(--font); }
+  .sb-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .sb-item.active { background: var(--bg-secondary); color: var(--text-primary); font-weight: 500; }
+  .sb-item i { font-size: 14px; width: 16px; flex-shrink: 0; }
+  .sb-count { margin-left: auto; font-size: 11px; color: var(--text-tertiary); }
+  .sb-count.red { color: #A32D2D; }
+
+  /* ── Main panel ── */
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+  .topbar { padding: 0 16px; height: 48px; border-bottom: 0.5px solid var(--border-t); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .topbar-title { font-size: 13px; font-weight: 500; flex: 1; }
+  .topbar-filters { display: flex; gap: 4px; }
+  .fc { font-size: 11px; padding: 3px 9px; border-radius: 99px; border: 0.5px solid var(--border-t); background: transparent; cursor: pointer; color: var(--text-secondary); font-family: var(--font); transition: all 0.1s; }
+  .fc:hover { border-color: var(--border-s); color: var(--text-primary); }
+  .fc.active { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+  .btn-new { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; font-size: 12px; border-radius: var(--radius-md); cursor: pointer; border: 0.5px solid var(--border-s); background: var(--text-primary); color: var(--bg-primary); font-family: var(--font); font-weight: 500; transition: opacity 0.1s; }
+  .btn-new:hover { opacity: 0.82; }
+  .btn-new i { font-size: 14px; }
+
+  /* ── Metrics bar ── */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 0.5px solid var(--border-t); flex-shrink: 0; }
+  .metric { padding: 12px 14px; border-right: 0.5px solid var(--border-t); }
+  .metric:last-child { border-right: none; }
+  .metric-n { font-size: 22px; font-weight: 500; line-height: 1; margin-bottom: 3px; }
+  .metric-l { font-size: 11px; color: var(--text-tertiary); }
+  .c-red { color: #A32D2D; }
+  .c-amber { color: #854F0B; }
+  .c-blue { color: #185FA5; }
+  .c-green { color: #3B6D11; }
+
+  /* ── Table ── */
+  .tbl-head { display: grid; grid-template-columns: 8px minmax(0,1fr) 92px 84px 64px 28px; gap: 8px; padding: 7px 14px; border-bottom: 0.5px solid var(--border-t); flex-shrink: 0; }
+  .tbl-head span { font-size: 10px; font-weight: 500; color: var(--text-tertiary); letter-spacing: 0.06em; text-transform: uppercase; }
+  .ticket-list { flex: 1; overflow-y: auto; }
+  .trow { display: grid; grid-template-columns: 8px minmax(0,1fr) 92px 84px 64px 28px; gap: 8px; padding: 9px 14px; border-bottom: 0.5px solid var(--border-t); cursor: pointer; align-items: center; transition: background 0.1s; }
+  .trow:hover { background: var(--bg-secondary); }
+  .trow.sel { background: #E6F1FB; }
+
+  @media (prefers-color-scheme: dark) { .trow.sel { background: #042c53; } }
+
+  .pdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .pcritical { background: #E24B4A; }
+  .phigh { background: #EF9F27; }
+  .pmedium { background: #378ADD; }
+  .plow { background: #639922; }
+  .t-title { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); }
+  .t-id { font-size: 11px; color: var(--text-tertiary); margin-right: 5px; }
+
+  .spill { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 99px; font-weight: 500; }
+  .sopen { background: #E6F1FB; color: #0C447C; }
+  .sinprogress { background: #FAEEDA; color: #633806; }
+  .sresolved { background: #EAF3DE; color: #27500A; }
+  .sclosed { background: #F1EFE8; color: #5F5E5A; }
+  .swaiting { background: #FBEAF0; color: #4B1528; }
+
+  .t-asgn { font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .t-pri { font-size: 10px; text-transform: capitalize; font-weight: 500; }
+  .t-more { background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 15px; padding: 2px; border-radius: 4px; }
+  .t-more:hover { color: var(--text-secondary); background: var(--bg-secondary); }
+  .empty { padding: 48px 24px; text-align: center; color: var(--text-tertiary); font-size: 12px; }
+  .empty i { font-size: 28px; display: block; margin-bottom: 6px; opacity: 0.4; }
+
+  /* ── Detail panel ── */
+  .detail { width: var(--panel-w); border-left: 0.5px solid var(--border-t); display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+  .detail.gone { display: none; }
+  .dp-top { padding: 14px 16px; border-bottom: 0.5px solid var(--border-t); display: flex; align-items: flex-start; gap: 8px; }
+  .dp-top h3 { font-size: 13px; font-weight: 500; flex: 1; line-height: 1.45; }
+  .dp-close { background: none; border: none; cursor: pointer; color: var(--text-tertiary); font-size: 17px; padding: 0; flex-shrink: 0; margin-top: 1px; }
+  .dp-close:hover { color: var(--text-primary); }
+  .dp-scroll { flex: 1; overflow-y: auto; padding: 14px 16px; }
+  .dp-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .dp-kv { display: flex; flex-direction: column; gap: 3px; }
+  .dp-k { font-size: 10px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; }
+  .dp-v { font-size: 12px; }
+  .dp-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.65; padding: 10px 12px; border: 0.5px solid var(--border-t); border-radius: var(--radius-md); background: var(--bg-secondary); margin-bottom: 16px; }
+  .tl { list-style: none; padding-bottom: 4px; }
+  .tl-row { display: flex; gap: 10px; padding-bottom: 12px; position: relative; }
+  .tl-row:not(:last-child)::before { content: ''; position: absolute; left: 10px; top: 20px; bottom: 0; width: 0.5px; background: var(--border-t); }
+  .tl-ico { width: 20px; height: 20px; border-radius: 50%; border: 0.5px solid var(--border-s); background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .tl-ico i { font-size: 11px; color: var(--text-secondary); }
+  .tl-body { flex: 1; padding-top: 1px; }
+  .tl-msg { font-size: 12px; line-height: 1.5; }
+  .tl-t { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
+  .dp-foot { padding: 10px 14px; border-top: 0.5px solid var(--border-t); display: flex; gap: 6px; }
+  .dp-foot select { flex: 1; font-size: 12px; font-family: var(--font); border: 0.5px solid var(--border-s); border-radius: var(--radius-md); background: var(--bg-primary); color: var(--text-primary); padding: 5px 8px; outline: none; }
+  .btn-sm { display: inline-flex; align-items: center; gap: 4px; padding: 5px 10px; font-size: 12px; border-radius: var(--radius-md); cursor: pointer; border: 0.5px solid var(--border-s); background: transparent; color: var(--text-secondary); font-family: var(--font); white-space: nowrap; transition: background 0.1s; }
+  .btn-sm:hover { background: var(--bg-secondary); color: var(--text-primary); }
+
+  /* ── Modal ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.32); z-index: 50; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--bg-primary); border-radius: var(--radius-lg); border: 0.5px solid var(--border-t); width: 440px; max-width: 96vw; }
+  .modal-hd { padding: 14px 18px; border-bottom: 0.5px solid var(--border-t); display: flex; align-items: center; justify-content: space-between; }
+  .modal-hd h3 { font-size: 14px; font-weight: 500; }
+  .modal-bd { padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .fg { display: flex; flex-direction: column; gap: 4px; }
+  .fg label { font-size: 11px; font-weight: 500; color: var(--text-secondary); letter-spacing: 0.03em; }
+  .fg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .fg input, .fg select, .fg textarea {
+    font-size: 12px; font-family: var(--font);
+    border: 0.5px solid var(--border-s); border-radius: var(--radius-md);
+    background: var(--bg-primary); color: var(--text-primary);
+    padding: 7px 10px; outline: none; width: 100%;
+  }
+  .fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--border-p); box-shadow: 0 0 0 2px rgba(55,138,221,0.15); }
+  .fg textarea { resize: vertical; min-height: 72px; }
+  .modal-ft { padding: 10px 18px; border-top: 0.5px solid var(--border-t); display: flex; justify-content: flex-end; gap: 6px; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-s); border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Icon rail -->
+  <nav class="nav">
+    <div class="nav-logo"><i class="ti ti-headset"></i></div>
+    <button class="nav-btn active" title="Tickets"><i class="ti ti-ticket"></i><span class="nav-pip"></span></button>
+    <button class="nav-btn" title="Dashboard" onclick="alert('Dashboard view — extend this app to add analytics charts.')"><i class="ti ti-chart-bar"></i></button>
+    <button class="nav-btn" title="Team" onclick="alert('Team view — extend this app to show agent workloads.')"><i class="ti ti-users"></i></button>
+    <button class="nav-btn" title="Knowledge base" onclick="alert('Knowledge base — extend this app to link articles.')"><i class="ti ti-book"></i></button>
+    <div class="nav-spacer"></div>
+    <button class="nav-btn" title="Settings" onclick="alert('Settings — extend this app to configure queues, SLAs, and notifications.')"><i class="ti ti-settings"></i></button>
+  </nav>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-head">
+      <p>Helpdesk</p>
+      <div class="sb-search">
+        <i class="ti ti-search"></i>
+        <input type="text" id="srch" placeholder="Search…" oninput="render()">
+      </div>
+    </div>
+    <div class="sb-scroll">
+      <div class="sb-section">
+        <div class="sb-label">Queues</div>
+        <button class="sb-item active" id="nav-all"      onclick="nav('all',this)">          <i class="ti ti-inbox"></i>       All tickets<span class="sb-count" id="c-all">0</span></button>
+        <button class="sb-item"        id="nav-open"     onclick="nav('open',this)">         <i class="ti ti-circle-dot"></i>  Open<span class="sb-count red" id="c-open">0</span></button>
+        <button class="sb-item"        id="nav-inprogress" onclick="nav('inprogress',this)"> <i class="ti ti-loader"></i>      In progress<span class="sb-count" id="c-inprogress">0</span></button>
+        <button class="sb-item"        id="nav-waiting"  onclick="nav('waiting',this)">      <i class="ti ti-clock-pause"></i> Waiting<span class="sb-count" id="c-waiting"></span></button>
+        <button class="sb-item"        id="nav-resolved" onclick="nav('resolved',this)">     <i class="ti ti-circle-check"></i>Resolved<span class="sb-count" id="c-resolved"></span></button>
+        <button class="sb-item"        id="nav-closed"   onclick="nav('closed',this)">       <i class="ti ti-archive"></i>     Closed<span class="sb-count" id="c-closed"></span></button>
+      </div>
+      <div class="sb-section">
+        <div class="sb-label">Views</div>
+        <button class="sb-item" onclick="nav('critical',this)">   <i class="ti ti-alert-circle" style="color:#E24B4A"></i>Critical<span class="sb-count red" id="c-critical"></span></button>
+        <button class="sb-item" onclick="nav('mine',this)">       <i class="ti ti-user-check"></i>Mine</button>
+        <button class="sb-item" onclick="nav('unassigned',this)"> <i class="ti ti-user-x"></i>Unassigned</button>
+      </div>
+      <div class="sb-section">
+        <div class="sb-label">Category</div>
+        <button class="sb-item" onclick="nav('Hardware',this)">           <i class="ti ti-cpu"></i>Hardware</button>
+        <button class="sb-item" onclick="nav('Software',this)">           <i class="ti ti-app-window"></i>Software</button>
+        <button class="sb-item" onclick="nav('Network',this)">            <i class="ti ti-network"></i>Network</button>
+        <button class="sb-item" onclick="nav('Access & Permissions',this)"><i class="ti ti-lock"></i>Access</button>
+        <button class="sb-item" onclick="nav('Email',this)">              <i class="ti ti-mail"></i>Email</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="view-lbl">All tickets</span>
+      <div class="topbar-filters">
+        <button class="fc active" onclick="pri('all',this)">All</button>
+        <button class="fc" onclick="pri('critical',this)">Critical</button>
+        <button class="fc" onclick="pri('high',this)">High</button>
+        <button class="fc" onclick="pri('medium',this)">Medium</button>
+        <button class="fc" onclick="pri('low',this)">Low</button>
+      </div>
+      <button class="btn-new" onclick="openModal()"><i class="ti ti-plus"></i>New ticket</button>
+    </div>
+
+    <div class="metrics" id="metrics"></div>
+
+    <div class="tbl-head">
+      <span></span>
+      <span>Title</span>
+      <span>Status</span>
+      <span>Assignee</span>
+      <span>Priority</span>
+      <span></span>
+    </div>
+
+    <div class="ticket-list" id="tlist"></div>
+  </div>
+
+  <!-- Detail panel -->
+  <div class="detail gone" id="dp"></div>
+
+</div><!-- /.app -->
+
+<!-- New ticket modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-hd">
+      <h3>New support ticket</h3>
+      <button class="dp-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-bd">
+      <div class="fg"><label>Title</label><input type="text" id="f-title" placeholder="Brief summary of the issue"></div>
+      <div class="fg2">
+        <div class="fg"><label>Category</label>
+          <select id="f-cat">
+            <option>Hardware</option><option>Software</option><option>Network</option>
+            <option>Access & Permissions</option><option>Email</option><option>Other</option>
+          </select>
+        </div>
+        <div class="fg"><label>Priority</label>
+          <select id="f-pri">
+            <option value="low">Low</option><option value="medium" selected>Medium</option>
+            <option value="high">High</option><option value="critical">Critical</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg2">
+        <div class="fg"><label>Requester</label><input type="text" id="f-req" placeholder="Full name"></div>
+        <div class="fg"><label>Assign to</label>
+          <select id="f-asgn">
+            <option>Unassigned</option><option>Alex Kim</option><option>Jordan Lee</option>
+            <option>Sam Patel</option><option>Morgan Chen</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Description</label><textarea id="f-desc" placeholder="Describe the issue in detail…"></textarea></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn-new" onclick="createTicket()"><i class="ti ti-send"></i>Submit ticket</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── Data ── */
+let T = [
+  { id:'INC-0047', title:'Laptop not connecting to VPN after Windows update',           cat:'Network',             pri:'critical', status:'open',       assignee:'Alex Kim',    req:'Priya Shah',       created:'2026-05-07', desc:'User updated Windows yesterday and cannot connect to corporate VPN. Error code 800. Other users on same network unaffected.',                                          log:[{i:'ti-ticket',      m:'Ticket created by Priya Shah',                               t:'Today 08:12'},{i:'ti-user-plus',m:'Assigned to Alex Kim',t:'Today 08:15'}] },
+  { id:'INC-0046', title:'Outlook not syncing emails on mobile device',                 cat:'Email',               pri:'high',     status:'inprogress', assignee:'Jordan Lee',  req:'Tom Watkins',      created:'2026-05-06', desc:'Outlook mobile stopped syncing 2 days ago. Web version works fine. Device: iPhone 15, iOS 17.4.',                                                               log:[{i:'ti-ticket',      m:'Ticket created by Tom Watkins',                              t:'Yesterday 14:22'},{i:'ti-user-plus',m:'Assigned to Jordan Lee',t:'Yesterday 14:30'},{i:'ti-message',m:'Jordan: Checking MDM policy and Exchange settings.',t:'Today 09:01'}] },
+  { id:'INC-0045', title:'Shared printer offline — Building C, Floor 2',               cat:'Hardware',            pri:'high',     status:'inprogress', assignee:'Sam Patel',   req:'Dana Cruz',        created:'2026-05-06', desc:'HP LaserJet 4015 showing offline. 12 staff affected. Last print job was Monday.',                                                                                log:[{i:'ti-ticket',      m:'Ticket created by Dana Cruz',                                t:'Yesterday 11:05'},{i:'ti-user-plus',m:'Assigned to Sam Patel',t:'Yesterday 11:10'},{i:'ti-message',m:'Sam: On-site inspection scheduled 2 PM today.',t:'Yesterday 16:00'}] },
+  { id:'INC-0044', title:'Access request: Salesforce CRM for new hire',                cat:'Access & Permissions',pri:'medium',   status:'waiting',    assignee:'Morgan Chen', req:'HR — Liz Nguyen',  created:'2026-05-05', desc:'New employee Marcus Rivera (Marketing) needs Salesforce Standard User access. Manager: Daniel Ortiz.',                                                           log:[{i:'ti-ticket',      m:'Ticket created',                                             t:'Mon 09:30'},{i:'ti-clock',m:'Awaiting manager approval from Daniel Ortiz',t:'Mon 10:00'}] },
+  { id:'INC-0043', title:'Blue screen — MEMORY_MANAGEMENT on finance workstation',     cat:'Hardware',            pri:'critical', status:'open',       assignee:'Alex Kim',    req:'Carla Roth',       created:'2026-05-05', desc:'BSOD occurring multiple times daily. Error: MEMORY_MANAGEMENT. Machine is 4 years old, no recent hardware changes.',                                                log:[{i:'ti-ticket',      m:'Ticket created',                                             t:'Mon 15:45'},{i:'ti-user-plus',m:'Assigned to Alex Kim',t:'Mon 15:50'}] },
+  { id:'INC-0042', title:'Software install: Adobe Creative Cloud',                     cat:'Software',            pri:'low',      status:'resolved',   assignee:'Jordan Lee',  req:'Ben Nakamura',     created:'2026-05-04', desc:'Designer needs Adobe CC installed on new MacBook Pro. License is available in the portal.',                                                                       log:[{i:'ti-ticket',      m:'Ticket created',                                             t:'Sun 10:00'},{i:'ti-circle-check',m:'Adobe CC installed and activated successfully.',t:'Mon 11:30'}] },
+  { id:'INC-0041', title:'Wi-Fi dropping every 20–30 min — Conference Room 4B',        cat:'Network',             pri:'medium',   status:'inprogress', assignee:'Sam Patel',   req:'Facilities',       created:'2026-05-04', desc:'Connectivity drops intermittently after AP firmware update last Thursday.',                                                                                      log:[{i:'ti-ticket',      m:'Ticket created',                                             t:'Sun 09:00'},{i:'ti-message',m:'Sam: AP logs show auth timeouts. Investigating.',t:'Mon 14:00'}] },
+  { id:'INC-0040', title:'Password reset after account lockout',                        cat:'Access & Permissions',pri:'low',      status:'resolved',   assignee:'Morgan Chen', req:'James Osei',       created:'2026-05-03', desc:'User locked after 5 failed attempts. Password reset and MFA re-enrollment required.',                                                                            log:[{i:'ti-ticket',      m:'Ticket created',                                             t:'Sat 08:22'},{i:'ti-circle-check',m:'Password reset and MFA re-enrolled.',t:'Sat 09:10'}] },
+  { id:'INC-0039', title:'Slow file transfers on shared network drive',                 cat:'Network',             pri:'medium',   status:'open',       assignee:'Unassigned',  req:'Ops Team',         created:'2026-05-03', desc:'Transfers to \\\\fs01\\shared are under 1 Mbps. Entire ops dept affected since Friday.',                                                                          log:[{i:'ti-ticket',      m:'Ticket created',                                             t:'Sat 10:15'}] },
+  { id:'INC-0038', title:'Zoom virtual background missing after v5.18 update',         cat:'Software',            pri:'low',      status:'closed',     assignee:'Jordan Lee',  req:'Lisa Huang',       created:'2026-05-02', desc:'Virtual background disappeared. No GPU listed in Zoom settings after the update.',                                                                              log:[{i:'ti-ticket',      m:'Ticket created',                                             t:'Fri 15:00'},{i:'ti-circle-check',m:'Cache cleared, graphics drivers updated. Resolved.',t:'Fri 16:30'},{i:'ti-archive',m:'Ticket closed',t:'Mon 08:00'}] },
+  { id:'INC-0037', title:'MFA enforcement rollout for exec team',                       cat:'Access & Permissions',pri:'high',     status:'open',       assignee:'Morgan Chen', req:'CISO Office',      created:'2026-05-01', desc:'All C-suite members need MFA enforced by end of week per new security policy. 6 accounts affected.',                                                              log:[{i:'ti-ticket',      m:'Ticket created',                                             t:'Thu 11:00'},{i:'ti-user-plus',m:'Assigned to Morgan Chen',t:'Thu 11:05'}] },
+  { id:'INC-0036', title:'Keyboard missing keystrokes — Keychron K2',                  cat:'Hardware',            pri:'low',      status:'inprogress', assignee:'Sam Patel',   req:'Yuki Tanaka',      created:'2026-04-30', desc:'USB mechanical keyboard occasionally drops keystrokes. Tried multiple USB ports, same behavior.',                                                                  log:[{i:'ti-ticket',      m:'Ticket created',                                             t:'Wed 13:30'},{i:'ti-message',m:'Sam: Replacement shipped, arriving tomorrow.',t:'Fri 10:00'}] }
+];
+
+let vw = 'all', pf = 'all', sel = null;
+
+const VIEW_LABELS = {
+  all:'All tickets', open:'Open', inprogress:'In progress', waiting:'Waiting',
+  resolved:'Resolved', closed:'Closed', critical:'Critical', mine:'Assigned to me',
+  unassigned:'Unassigned', Hardware:'Hardware', Software:'Software',
+  Network:'Network', 'Access & Permissions':'Access & Permissions', Email:'Email'
+};
+
+const STATUSES = ['open','inprogress','waiting','resolved','closed'];
+
+function sl(s) { return s === 'inprogress' ? 'In progress' : s.charAt(0).toUpperCase() + s.slice(1); }
+function sc(s) { return 'spill s' + s.replace(/\s/g,''); }
+function pc(p) { return 'pdot p' + p; }
+function pcol(p) {
+  return p==='critical' ? '#A32D2D' : p==='high' ? '#854F0B' : p==='medium' ? '#185FA5' : '#3B6D11';
+}
+function fd(d) {
+  const n = new Date(d), now = new Date();
+  const diff = Math.floor((now - n) / 86400000);
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Yesterday';
+  return n.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+}
+
+function getQ() {
+  const q = (document.getElementById('srch').value || '').toLowerCase();
+  return T.filter(t => {
+    if      (vw === 'all')        { /* no filter */ }
+    else if (vw === 'mine')       { if (t.assignee !== 'Alex Kim') return false; }
+    else if (vw === 'unassigned') { if (t.assignee !== 'Unassigned') return false; }
+    else if (vw === 'critical')   { if (t.pri !== 'critical') return false; }
+    else if (['Hardware','Software','Network','Access & Permissions','Email'].includes(vw)) {
+      if (t.cat !== vw) return false;
+    }
+    else if (t.status !== vw) return false;
+
+    if (pf !== 'all' && t.pri !== pf) return false;
+    if (q && !t.title.toLowerCase().includes(q) &&
+             !t.id.toLowerCase().includes(q) &&
+             !t.assignee.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function render() {
+  const rows = getQ();
+  const lst = document.getElementById('tlist');
+
+  if (!rows.length) {
+    lst.innerHTML = '<div class="empty"><i class="ti ti-inbox"></i>No tickets match this filter</div>';
+  } else {
+    lst.innerHTML = rows.map(t => `
+      <div class="trow${sel === t.id ? ' sel' : ''}" onclick="selTicket('${t.id}')">
+        <span class="${pc(t.pri)}" title="${t.pri} priority"></span>
+        <span class="t-title"><span class="t-id">${t.id}</span>${t.title}</span>
+        <span class="${sc(t.status)}">${sl(t.status)}</span>
+        <span class="t-asgn">${t.assignee}</span>
+        <span class="t-pri" style="color:${pcol(t.pri)}">${t.pri}</span>
+        <button class="t-more" onclick="event.stopPropagation()" title="More actions"><i class="ti ti-dots-vertical"></i></button>
+      </div>`).join('');
+  }
+
+  updMetrics();
+  updCounts();
+}
+
+function updMetrics() {
+  document.getElementById('metrics').innerHTML = `
+    <div class="metric"><div class="metric-n c-red">${T.filter(t=>t.status==='open').length}</div><div class="metric-l">Open</div></div>
+    <div class="metric"><div class="metric-n c-amber">${T.filter(t=>t.status==='inprogress').length}</div><div class="metric-l">In progress</div></div>
+    <div class="metric"><div class="metric-n c-red">${T.filter(t=>t.pri==='critical'&&!['resolved','closed'].includes(t.status)).length}</div><div class="metric-l">Critical active</div></div>
+    <div class="metric"><div class="metric-n c-green">${T.filter(t=>['resolved','closed'].includes(t.status)).length}</div><div class="metric-l">Resolved</div></div>`;
+}
+
+function updCounts() {
+  const sets = {
+    all: T.length,
+    open: T.filter(t=>t.status==='open').length,
+    inprogress: T.filter(t=>t.status==='inprogress').length,
+    waiting: T.filter(t=>t.status==='waiting').length,
+    resolved: T.filter(t=>t.status==='resolved').length,
+    closed: T.filter(t=>t.status==='closed').length,
+    critical: T.filter(t=>t.pri==='critical').length
+  };
+  Object.entries(sets).forEach(([k,v]) => {
+    const el = document.getElementById('c-' + k);
+    if (el) el.textContent = v || '';
+  });
+}
+
+function selTicket(id) {
+  sel = id;
+  const t = T.find(x => x.id === id);
+  if (!t) return;
+  const dp = document.getElementById('dp');
+  dp.classList.remove('gone');
+  dp.innerHTML = `
+    <div class="dp-top">
+      <div style="flex:1">
+        <div style="font-size:10px;color:var(--text-tertiary);margin-bottom:4px;letter-spacing:0.03em">${t.id} · ${t.cat}</div>
+        <h3>${t.title}</h3>
+      </div>
+      <button class="dp-close" onclick="closeDP()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="dp-scroll">
+      <div class="dp-meta">
+        <div class="dp-kv"><span class="dp-k">Status</span><span class="${sc(t.status)}" style="display:inline-block;margin-top:2px">${sl(t.status)}</span></div>
+        <div class="dp-kv"><span class="dp-k">Priority</span><span class="dp-v" style="color:${pcol(t.pri)};font-weight:500;text-transform:capitalize">${t.pri}</span></div>
+        <div class="dp-kv"><span class="dp-k">Assignee</span><span class="dp-v">${t.assignee}</span></div>
+        <div class="dp-kv"><span class="dp-k">Requester</span><span class="dp-v">${t.req}</span></div>
+        <div class="dp-kv"><span class="dp-k">Opened</span><span class="dp-v">${fd(t.created)}</span></div>
+        <div class="dp-kv"><span class="dp-k">Category</span><span class="dp-v">${t.cat}</span></div>
+      </div>
+      <div class="dp-desc">${t.desc}</div>
+      <div class="dp-k" style="margin-bottom:8px">Activity</div>
+      <ul class="tl">
+        ${t.log.map(e => `
+          <li class="tl-row">
+            <div class="tl-ico"><i class="ti ${e.i}"></i></div>
+            <div class="tl-body"><div class="tl-msg">${e.m}</div><div class="tl-t">${e.t}</div></div>
+          </li>`).join('')}
+      </ul>
+    </div>
+    <div class="dp-foot">
+      <select id="dp-sel" onchange="updStatus('${t.id}', this.value)">
+        ${STATUSES.map(s => `<option value="${s}"${t.status===s?' selected':''}>${sl(s)}</option>`).join('')}
+      </select>
+      <button class="btn-sm" onclick="alert('AI help: connect to an AI API to suggest resolution steps for this ticket.')">
+        <i class="ti ti-sparkles"></i>AI help
+      </button>
+    </div>`;
+  render();
+}
+
+function closeDP() { sel = null; document.getElementById('dp').classList.add('gone'); render(); }
+
+function updStatus(id, ns) {
+  const t = T.find(x => x.id === id);
+  if (!t) return;
+  const os = t.status;
+  t.status = ns;
+  t.log.push({ i:'ti-refresh', m:`Status: ${sl(os)} → ${sl(ns)}`, t:'Just now' });
+  selTicket(id);
+}
+
+function nav(v, el) {
+  vw = v;
+  document.querySelectorAll('.sb-item').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('view-lbl').textContent = VIEW_LABELS[v] || v;
+  closeDP();
+  render();
+}
+
+function pri(p, el) {
+  pf = p;
+  document.querySelectorAll('.fc').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function openModal()  { document.getElementById('modal-overlay').classList.add('open'); }
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  ['f-title','f-desc','f-req'].forEach(id => { document.getElementById(id).value = ''; });
+}
+
+function createTicket() {
+  const title = (document.getElementById('f-title').value || '').trim();
+  if (!title) { document.getElementById('f-title').focus(); return; }
+
+  const maxId = Math.max(...T.map(t => parseInt(t.id.split('-')[1])));
+  const nid = 'INC-' + (maxId + 1).toString().padStart(4, '0');
+
+  const nt = {
+    id: nid,
+    title,
+    cat:      document.getElementById('f-cat').value,
+    pri:      document.getElementById('f-pri').value,
+    status:   'open',
+    assignee: document.getElementById('f-asgn').value,
+    req:      document.getElementById('f-req').value || 'Self',
+    created:  new Date().toISOString().split('T')[0],
+    desc:     document.getElementById('f-desc').value || 'No description provided.',
+    log:      [{ i:'ti-ticket', m:'Ticket created', t:'Just now' }]
+  };
+
+  if (nt.assignee !== 'Unassigned') {
+    nt.log.push({ i:'ti-user-plus', m:`Assigned to ${nt.assignee}`, t:'Just now' });
+  }
+
+  T.unshift(nt);
+  closeModal();
+
+  vw = 'all';
+  document.querySelectorAll('.sb-item').forEach(e => e.classList.remove('active'));
+  document.getElementById('nav-all').classList.add('active');
+  document.getElementById('view-lbl').textContent = 'All tickets';
+  render();
+  setTimeout(() => selTicket(nid), 30);
+}
+
+/* close modal on overlay click */
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+/* init */
+render();
+</script>
+</body>
+</html>
